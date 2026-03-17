@@ -3,11 +3,12 @@ Compile chaque .c en .o (peu importe l'ordre) :
 gcc -I include -c src/GF8_Arithmetics.c -o build/GF8_Arithmetics.o
 gcc -I include -c src/helpers.c -o build/helpers.o
 gcc -I include -c src/aes.c -o build/aes.o
+gcc -c src/load_sets.c -o build/load_sets.o
 
 gcc -c test/tests.c -o test/tests.o
 
 
-gcc test/tests.o build/GF8_Arithmetics.o build/helpers.o build/aes.o -o test/tests
+gcc test/tests.o build/GF8_Arithmetics.o build/helpers.o build/aes.o build/load_sets.o -o test/tests
 
 
 Compilé avec gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0

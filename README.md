@@ -76,7 +76,7 @@ Donc pour résumer : pour chaque cellule, on déduit les positions des 4 octets 
 En réalité cette version naïve est très coûteuse (comme expliqué plus bas dans la section du la complexité). On peut cependant l'accélérer grandement. L'idée est d'appliquer InvMixColumns avant ARK pour remonter le tour 4, de sorte qu'il ne reste qu'un octet à supposer au lieu de 4 pour ARK$_4$.
 
 Voilà pourquoi cela fonctionne : MixColumns est une application linéaire, notons par $M$ la matrice correspondante. On a
-$M \oplus k$ si on applique d'abord MixColumns puis ARK avec l'hypothèse $k$, et $M(s \oplus k) = Ms \oplus Mk$ si on fait l'inverse. La différence entre les deux est donc $Mk \oplus k$ et ne dépend pas de l'état $s$.
+$Ms \oplus k$ si on applique d'abord MixColumns puis ARK avec l'hypothèse $k$, et $M(s \oplus k) = Ms \oplus Mk$ si on fait l'inverse. La différence entre les deux est donc $Mk \oplus k$ et ne dépend pas de l'état $s$.
 Donc lors du calcul d'équilibre, cette constante est sommée 256 fois, ce qui fait 0. Donc cela ne change rien au résultat sur l'équilibre des cellules.
 
 ## Coût des attaques
@@ -97,7 +97,7 @@ Notons que sans l'astuce d'applique MC avant ARK on serait à
 $$ 16 \times 256^4 \times 256^4 \times 256 = 2^{76}...$$
 
 $2^{52}$ commence à devenir énorme pour un ordinateur personnel, mais reste faisable en un temps raisonnable avec plusieurs machines en parallèle.
-Cependant avec une implémentation qui sort dès qu'une hypothèse est remarquée fausse, on peut grandement améliorer la complexité réelle, et $O(2^{52})$ devient alors le pire cas.
+Cependant avec une implémentation qui sort dès qu'une hypothèse est remarquée fausse, on peut grandement améliorer la complexité réelle, et $2^{52}$ devient alors le pire cas.
 
 ## Remerciements
 
