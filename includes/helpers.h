@@ -15,6 +15,8 @@ void print_hex(const uint8_t *b, size_t n);
 
 void print_key(const key k);
 
+void print_state(const State state);
+
 // [16] to [4][4] with State[col][row]
 void bytes_to_state(const key in, State s);
 

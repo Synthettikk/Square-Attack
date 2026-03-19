@@ -10,6 +10,7 @@ void print_hex(const uint8_t *b, size_t n){
     printf("\n");
 }
 
+/* return true (1) iff keys are equal, else false (0) */
 int key_equal(const key a, const key b){
     return memcmp(a, b, 16) == 0;
 }
@@ -17,6 +18,11 @@ int key_equal(const key a, const key b){
 void print_key(const key k){
     for (int b=0;b<16;++b) printf(" %02x", k[b]);
     printf("\n");
+}
+
+void print_state(const State state){
+  for (int c = 0; c < 4; c++) for (int r = 0; r < 4; r++) printf(" %02x", state[c][r]);
+  printf("\n");
 }
 
 // [16] to [4][4] with State[col][row]

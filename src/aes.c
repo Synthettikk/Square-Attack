@@ -76,6 +76,10 @@ void SubBytes(State s){
   }
 }
 
+uint8_t InvSubByte(uint8_t byte){
+    return inv_sbox[byte];
+}
+
 void InvSubBytes(State s){
     for(int c = 0; c < 4; c++) for(int r = 0; r < 4; r++) s[c][r] = inv_sbox[s[c][r]];
 }
@@ -195,7 +199,7 @@ size_t KeyExpansion(const key masterKey, uint32_t words_out[], size_t words_out_
     return (size_t)Nwords;
 }
 
-// Extract RoundKeys for n rounds from words
+/* // Extract RoundKeys for n rounds from words
 void getRoundKey(const uint32_t words[], int round, key out){
     uint8_t tmp[4];
     for(int i = 0; i < 4; ++i){
@@ -206,13 +210,35 @@ void getRoundKey(const uint32_t words[], int round, key out){
         out[4 * i + 3] = tmp[3];
     }
 }
+*/
+
+void getRoundKey(const uint32_t words[], int round, key out){
+    for(int i = 0; i < 4; ++i){
+        fromWord(words[4 * round + i], out + 4 * i);
+    }
+}
+
+// takes the master key and computes roundkeys
+void KeySchedule(key roundkeys[11], key masterkey){
+    uint32_t words[44];
+    size_t got = KeyExpansion(masterkey, words, 44);
+
+    printf("\nKeySchedule : \n");
+    /* Extract round keys */
+    for(int r=0;r<=10;r++) {
+        printf("K%d : ", r);
+        getRoundKey(words, r, roundkeys[r]);
+        print_key(roundkeys[r]);
+    }
+    printf("\n");
+}
 
 
 // invKeySchedule: input roundKey (16 bytes), round index r (0..10) -> output masterKey (16 bytes)
-void invKeySchedule(const key round_keys, int r, key master_key) {
+void invKeySchedule(const key round_key, int r, key master_key) {
   // Convert roundKey to words W[0..3]
   uint32_t W[4];
-  for (int i=0;i<4;++i) W[i] = toWord(round_keys + 4*i);
+  for (int i=0;i<4;++i) W[i] = toWord(round_key + 4*i);
 
   // We'll reconstruct backwards.
   for (int round = r; round > 0; --round) {
@@ -303,7 +329,7 @@ int test_aes(){
 
     /* Test invKeySchedule */
     key master_key_test;
-    invKeySchedule(round_keys[10], 10, master_key_test);
+    invKeySchedule(round_keys[4], 4, master_key_test);
     if(key_equal(master_key_test, key_master)){
         printf("invKeySchedule OK \n");
     } else{

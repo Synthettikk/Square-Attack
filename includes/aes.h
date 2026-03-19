@@ -16,6 +16,7 @@ size_t KeyExpansion(const key masterKey, uint32_t words_out[], size_t words_out_
 // Extract RoundKeys for n rounds from words
 void getRoundKey(const uint32_t words[], int round, key out);
 
+uint8_t InvSubByte(uint8_t byte);
 void SubBytes(State s);
 void InvSubBytes(State s);
 void ShiftRows(State s);
@@ -24,8 +25,11 @@ void MixColumns(State s);
 void InvMixColumns(State s);
 void AddRoundKey(State s, const key rk); // rk for RoundKey
 
+// takes the master key and computes roundkeys
+void KeySchedule(key roundkeys[11], key masterkey);
+
 // invKeySchedule: input roundKey (16 bytes), round index r (0..10) -> output masterKey (16 bytes)
-void invKeySchedule(const key round_keys, int r, key master_key);
+void invKeySchedule(const key round_key, int r, key master_key);
 
 void AES_Encrypt(State s, const key round_keys[], int rounds);
 void AES_Decrypt(State s, const key round_keys[], int rounds);

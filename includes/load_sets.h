@@ -10,7 +10,7 @@
 
 typedef struct { 
     uint8_t plaintext[16];
-    uint8_t ciphertext[16];
+    uint8_t ciphertext_state[4][4];  // on le met direct sous forme de state
 } Pair;
 
 typedef struct { 
@@ -22,7 +22,7 @@ typedef struct {
     size_t count;
 } LambdaSetCollection;
 
-// charge tous les lambda set d'un fichier .txt et renvoie la collection
+// charge tous les lambda set d'un fichier et renvoie la collection
 LambdaSetCollection load_sets(const char *filename);
 
 // renvoie 1 si ok, 0 sinon

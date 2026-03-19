@@ -1,6 +1,7 @@
 // il nous faut déjà une fonction qui vient charger les lambda-set dans une var C
 
 #include "../includes/load_sets.h"
+#include "../includes/helpers.h"
 
 LambdaSetCollection load_sets(const char *filename){
     LambdaSetCollection collection;    
@@ -54,7 +55,7 @@ LambdaSetCollection load_sets(const char *filename){
 
         // remplit la pair
         memcpy(collection.sets[set_idx].pairs[pair_idx].plaintext, plaintext, 16);
-        memcpy(collection.sets[set_idx].pairs[pair_idx].ciphertext, ciphertext, 16);
+        bytes_to_state(ciphertext, collection.sets[set_idx].pairs[pair_idx].ciphertext_state); // met le cipher sous forme de state
 
         // passe à la pair d'apres
         pair_idx ++;
@@ -74,7 +75,7 @@ LambdaSetCollection load_sets(const char *filename){
 }
 
 int test_load_sets(){
-    LambdaSetCollection collection = load_sets("sets/5_rounds_ciphertexts");
+    LambdaSetCollection collection = load_sets("sets/4_rounds_ciphertexts");
     if (collection.count == 0) {
         fprintf(stderr, "Erreur loading collection \n");
         return 0;
@@ -87,13 +88,13 @@ int test_load_sets(){
     printf("Taille des lambda-sets : %d \n", LAMBDA_SET_SIZE);
     
     // Accès à une paire dans ce lambda-set
-    Pair pair = set.pairs[0];
+    Pair pair = set.pairs[1];
     
     printf("Première paire du premier set:\n");
     printf("Plaintext:  ");
     for (int i = 0; i < 16; i++) printf("%02x", pair.plaintext[i]);
     printf("\nCiphertext: ");
-    for (int i = 0; i < 16; i++) printf("%02x", pair.ciphertext[i]);
+    for (int c = 0; c < 4; c++) for (int r = 0; r < 4; r++) printf("%02x", pair.ciphertext_state[c][r]);
     printf("\n");
     
     // Libération
