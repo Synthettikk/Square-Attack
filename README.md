@@ -1,5 +1,36 @@
 # Attaque "Square" sur AES 4 et 5 tours
 
+## Usage
+
+### Requirements
+
+- gcc installé sur la machine et accessible depuis le bash
+- SCAred et NumPy pour les tests Python (on les laissera sûrement pas à terme)
+
+### Compile
+
+```bash
+make
+```
+
+### Clean les objets / éxécutables
+
+```bash
+make clean
+```
+
+### Run l'attaque 4 tours
+
+```bash
+build/main_4r
+```
+
+### Run les tests
+
+```bash
+test/tests
+```
+
 ## Notions fondamentales
 
 ### État
@@ -17,7 +48,9 @@ Pour $i, j \in \{0, 1, 2, 3\}$, la cellule $(i, j)$ est $j$-ième colonne de la 
 
 Prenons $(s^{(t)})_t$ un ensemble de 256 états et fixons une cellule $(i, j)$.
 Cette cellule est dite active à travers $(s^{(t)})_t$ si
-$$\{ s_{i, j}^{(t)} : t = 0, ..., 255 \} = \{0, ..., 255\}$$
+$$
+\{s_{i, j}^{(t)} : t = 0, ..., 256\} = \{0, ..., 255\}
+$$
 c'est-à-dire lorsque la cellule est traversée par tous les octets à travers les 256 états.
 
 ### Cellule inactive
@@ -25,7 +58,9 @@ c'est-à-dire lorsque la cellule est traversée par tous les octets à travers l
 Soit $(s^{(t)})_t$ un ensemble de 256 états et fixons une cellule
 $(i, j)$.
 Cette cellule est dite inactive à travers $(s^{(t)})_t$ si
-$$\{ s_{i, j}^{(t)} : t = 0, ..., 255 \} = \{c\}$$
+$$
+\{s_{i, j}^{(t)} : t = 0, ..., 255\} = \{c\}
+$$
 où $c$ est une valeur d'octet constante.
 C'est-à-dire que la cellule doit garder sa valeur constante au travers des 256 états.
 
@@ -38,7 +73,9 @@ un $\Lambda$-set si chacune de ses cellules est soit active, soit inactive.
 
 Soit $(s^{(t)})_t$ un ensemble de 256 états et soit $(i, j)$ une cellule.
 On dit que cette cellule est équilibrée à travers $(s^{(t)})_t$ si le XOR des 256 valeurs prises par cette cellule dans $(s^{(t)})_t$ fait 0, c'est-à-dire lorsque
-$$\bigoplus_{t = 0}^{255} s_{i, j}^{(t)} = 0$$
+$$
+\bigoplus_{t = 0}^{255} s_{i, j}^{(t)} = 0
+$$
 
 ## L'idée derrière l'attaque
 

@@ -14,3 +14,6 @@ gcc build/main_4r.o build/GF8_Arithmetics.o build/helpers.o build/aes.o build/lo
 
 
 Compilé avec gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+
+Utiliser le Makefile : 
+(bash) : make 
