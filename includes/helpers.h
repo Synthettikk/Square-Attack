@@ -13,6 +13,12 @@ int key_equal(const key a, const key b);
 
 void print_hex(const uint8_t *b, size_t n);
 
+/* "0x0123456789ABCDEF0123456789ABCDEF" -> [01, 23, 45, 67, 89, ab, cd, ef, 01, 23, 45, 67, 89, ab, cd, ef]*/
+void hex_string_to_bytes(const char *hex_str, uint8_t bytes[], int num_bytes);
+
+/* [01, 23, 45, 67, 89, ab, cd, ef, 01, 23, 45, 67, 89, ab, cd, ef] -> "0x0123456789ABCDEF0123456789ABCDEF" */
+void bytes_to_hex_string(uint8_t bytes[], int num_bytes, char *hex_str);
+
 void print_key(const key k);
 
 void print_state(const State state);

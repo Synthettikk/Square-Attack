@@ -2,6 +2,7 @@
 
 #include "../includes/aes.h"
 #include "../includes/load_sets.h"
+#include "../includes/gen_sets.h"
 #include "stdio.h"
 
 int main(void){
@@ -16,6 +17,12 @@ int main(void){
         printf("LOAD SETS OK \n");
     } else {
         printf("PROBLEM LOAD SETS");
+    }
+
+    if(test_gen_sets()){
+        printf("GEN SETS OK \n");
+    } else {
+        printf("PROBLEM GEN SETS");
     }
     return 0;
 }

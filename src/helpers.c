@@ -10,6 +10,26 @@ void print_hex(const uint8_t *b, size_t n){
     printf("\n");
 }
 
+/* "0x0123456789ABCDEF0123456789ABCDEF" -> [01, 23, 45, 67, 89, ab, cd, ef, 01, 23, 45, 67, 89, ab, cd, ef]*/
+void hex_string_to_bytes(const char *hex_str, uint8_t bytes[], int num_bytes) {
+  for (int i = 0; i < num_bytes; i++) {
+    sscanf(hex_str + 2 + (i * 2), "%2hhx", &bytes[i]);
+  }
+}
+
+/* [01, 23, 45, 67, 89, ab, cd, ef, 01, 23, 45, 67, 89, ab, cd, ef] -> "0x0123456789ABCDEF0123456789ABCDEF" */
+void bytes_to_hex_string(uint8_t bytes[], int num_bytes, char *hex_str) {
+  hex_str[0] = '0';
+  hex_str[1] = 'x';
+  
+  for (int i = 0; i < num_bytes; i++) {
+    sprintf(hex_str + 2 + (i * 2), "%02x", bytes[i]);
+  }
+  
+  hex_str[2 + (num_bytes * 2)] = '\0';
+}
+
+
 /* return true (1) iff keys are equal, else false (0) */
 int key_equal(const key a, const key b){
     return memcmp(a, b, 16) == 0;

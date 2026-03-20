@@ -4,7 +4,7 @@
 
 ### Requirements
 
-- gcc installé sur la machine et accessible depuis le bash
+- gcc installé sur la machine et accessible depuis le bash pour compiler
 - SCAred et NumPy pour les tests Python (on les laissera sûrement pas à terme)
 
 ### Compile
