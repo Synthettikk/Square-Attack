@@ -1,5 +1,6 @@
 // attaque sur aes 4 tours
 
+#include "../includes/GF8_Arithmetics.h"
 #include "../includes/aes.h"
 #include "../includes/load_sets.h"
 #include "../includes/helpers.h"
@@ -86,7 +87,10 @@ void attack4r(State key, const LambdaSetCollection *collection){
 
 
 int main(void){
-    LambdaSetCollection collection = load_sets("sets/4_rounds_ciphertexts");
+
+    init_mult_table();
+
+    LambdaSetCollection collection = load_sets("sets/4r_sets");
     State key4_state; // sous forme de state
     key key4;
     key master_key;

@@ -145,15 +145,6 @@ void MixColumns(State s){
   }
 }
 
-static void InvMixColumn(uint8_t col[4]){
-    uint8_t temp[4];
-    for(int i=0;i<4;i++) temp[i] = col[i]; // copie
-    col[0] = (uint8_t) (mult(0x0e, temp[0]) ^ mult(0x0b, temp[1]) ^ mult(0x0d, temp[2]) ^ mult(0x09, temp[3]));
-    col[1] = (uint8_t) (mult(0x09, temp[0]) ^ mult(0x0e, temp[1]) ^ mult(0x0b, temp[2]) ^ mult(0x0d, temp[3]));
-    col[2] = (uint8_t) (mult(0x0d, temp[0]) ^ mult(0x09, temp[1]) ^ mult(0x0e, temp[2]) ^ mult(0x0b, temp[3]));
-    col[3] = (uint8_t) (mult(0x0b, temp[0]) ^ mult(0x0d, temp[1]) ^ mult(0x09, temp[2]) ^ mult(0x0e, temp[3]));
-}
-
 void InvMixColumns(State s){
   for(int c = 0; c < 4; c++){
     uint8_t col[4];
@@ -300,6 +291,7 @@ void f(key ki, const key round_keys[], int rounds){
 
 // test que l'aes chiffre et déchiffre comme il faut
 int test_aes(){
+    init_mult_table();
 
     key round_keys[11]; // round_keys est calculé dans le test aes
 
@@ -316,16 +308,8 @@ int test_aes(){
         0x39,0x25,0x84,0x1d, 0x02,0xdc,0x09,0xfb, 0xdc,0x11,0x85,0x97, 0x19,0x6a,0x0b,0x32
     };
 
-    /* Compute expanded key words */
-    uint32_t words[44];
-    size_t got = KeyExpansion(key_master, words, 44);
-    if(got != 44){
-        fprintf(stderr, "KeyExpansion failed (got %zu words)\n", got);
-        return 1;
-    }
 
-    /* Extract round keys */
-    for(int r=0;r<=10;r++) getRoundKey(words, r, round_keys[r]);
+    KeySchedule(round_keys, key_master);
 
     /* Test invKeySchedule */
     key master_key_test;

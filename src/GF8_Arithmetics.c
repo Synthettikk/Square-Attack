@@ -13,13 +13,19 @@ uint8_t add(uint8_t a, uint8_t b){
     return a ^ b;
 }
 
+
+// Précalculé une fois au démarrage
+uint8_t mult_table[256][256];
+
+/*
 uint8_t xTime(uint8_t a){
     // auto Xa = a << 1; // mult a by X is like shifting the bits
     return (uint8_t) (a << 1) ^ (a & strongBit ? mod : 0x00); // if a has strong bit = 1, reduce Xa mod remainder
 }
+*/
 
 // double & add : b = sum_i b_i 2^i => ab = sum_i b_i (a 2^i)
-uint8_t mult(uint8_t a, uint8_t b){
+uint8_t mult_slow(uint8_t a, uint8_t b){
     uint8_t result = 0;
     uint8_t base = a; // a 2^i (begin with i = 0)
     while(b){
@@ -29,6 +35,22 @@ uint8_t mult(uint8_t a, uint8_t b){
     }
     return result;
 }
+
+void init_mult_table() {
+    for(int a = 0; a < 256; a++) {
+        for(int b = 0; b < 256; b++) {
+            mult_table[a][b] = mult_slow(a, b);  // ta version lente
+        }
+    }
+}
+
+/*
+// mult opti avec precalc de la table :
+inline uint8_t mult(uint8_t a, uint8_t b) {
+    return mult_table[a][b];
+}
+*/
+
 
 // a^e in GF(2^8) square and mult (left to right)
 uint8_t GF8_pow(uint8_t a, uint8_t e){

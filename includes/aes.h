@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include"GF8_Arithmetics.h"
 
 //using byte = uint8_t;
 //using word = uint32_t; // 1 word = 4 bytes here
@@ -22,6 +23,15 @@ void InvSubBytes(State s);
 void ShiftRows(State s);
 void InvShiftRows(State s);
 void MixColumns(State s);
+
+static inline void InvMixColumn(uint8_t col[4]) {
+    uint8_t a = col[0], b = col[1], c = col[2], d = col[3];
+    col[0] = mult(0x0e, a) ^ mult(0x0b, b) ^ mult(0x0d, c) ^ mult(0x09, d);
+    col[1] = mult(0x09, a) ^ mult(0x0e, b) ^ mult(0x0b, c) ^ mult(0x0d, d);
+    col[2] = mult(0x0d, a) ^ mult(0x09, b) ^ mult(0x0e, c) ^ mult(0x0b, d);
+    col[3] = mult(0x0b, a) ^ mult(0x0d, b) ^ mult(0x09, c) ^ mult(0x0e, d);
+}
+
 void InvMixColumns(State s);
 void AddRoundKey(State s, const key rk); // rk for RoundKey
 

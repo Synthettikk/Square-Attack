@@ -5,7 +5,6 @@
 ### Requirements
 
 - gcc installé sur la machine et accessible depuis le bash pour compiler
-- SCAred et NumPy pour les tests Python (on les laissera sûrement pas à terme)
 
 ### Compile
 
@@ -23,6 +22,12 @@ make clean
 
 ```bash
 build/main_4r
+```
+
+### Run l'attaque 5 tours
+
+```bash
+build/main_5r
 ```
 
 ### Run les tests
@@ -48,9 +53,11 @@ Pour $i, j \in \{0, 1, 2, 3\}$, la cellule $(i, j)$ est $j$-ième colonne de la 
 
 Prenons $(s^{(t)})_t$ un ensemble de 256 états et fixons une cellule $(i, j)$.
 Cette cellule est dite active à travers $(s^{(t)})_t$ si
+
 $$
 \{s_{i, j}^{(t)} : t = 0, ..., 256\} = \{0, ..., 255\}
 $$
+
 c'est-à-dire lorsque la cellule est traversée par tous les octets à travers les 256 états.
 
 ### Cellule inactive
@@ -58,9 +65,11 @@ c'est-à-dire lorsque la cellule est traversée par tous les octets à travers l
 Soit $(s^{(t)})_t$ un ensemble de 256 états et fixons une cellule
 $(i, j)$.
 Cette cellule est dite inactive à travers $(s^{(t)})_t$ si
+
 $$
 \{s_{i, j}^{(t)} : t = 0, ..., 255\} = \{c\}
 $$
+
 où $c$ est une valeur d'octet constante.
 C'est-à-dire que la cellule doit garder sa valeur constante au travers des 256 états.
 
@@ -73,6 +82,7 @@ un $\Lambda$-set si chacune de ses cellules est soit active, soit inactive.
 
 Soit $(s^{(t)})_t$ un ensemble de 256 états et soit $(i, j)$ une cellule.
 On dit que cette cellule est équilibrée à travers $(s^{(t)})_t$ si le XOR des 256 valeurs prises par cette cellule dans $(s^{(t)})_t$ fait 0, c'est-à-dire lorsque
+
 $$
 \bigoplus_{t = 0}^{255} s_{i, j}^{(t)} = 0
 $$
@@ -126,21 +136,25 @@ Donc lors du calcul d'équilibre, cette constante est sommée 256 fois, ce qui f
 
 ### Pour AES 4 tours
 
-Pour chaque cellule (il y en a 16 en tout), on fait 256 hypothèses d'octet de clé. Ensuite on applique $ARK^{-1}$, $SR^{-1}$, et enfin $SB^{-1}$ à chaque chiffré (on en a 256 par $\Lambda$-set), ce qui fait en tout $\simeq 16 \times 256 \times 256 = 2^{20}$ opérations élémentaires.
+Pour chaque cellule (il y en a 16 en tout), on fait 256 hypothèses d'octet de clé. Ensuite on applique $ARK^{-1}$, $SR^{-1}$, et enfin $SB^{-1}$ à chaque chiffré (on en a 256 par $\Lambda$-set), ce qui fait en tout $\simeq 16 \times 256 \times 256 = 2^{20}$ inversions du tour 4.
 
 Ceci est tout à fait abordable de nos jours avec un ordinateur personnel.
 
 ### Pour AES 5 tours
 
-Pour chaque cellule on fait 256 hypothèses pour chaque octet dont on a besoin de la clé $K_5$ (on a besoin de 4 octets), 256 pour l'octet de la clé $K_4$, et on fait les opérations pour chaque élément du $\Lambda$-set (256), ce qui fait :
-$$16 \times 256^4 \times 256 \times 256 = 2^{52}$$
-opérations élémentaires.
+Pour chaque colonne on fait 256 hypothèses pour chaque octet dont on a besoin dans la clé $K_5$ (on a besoin de 4 octets), 256 pour l'octet de la clé $K_4$, et on fait les opérations pour chaque élément du $\Lambda$-set (256), ce qui fait :
+
+$$4 \times 256^4 \times 256 \times 256 = 2^{50}$$
+
+inversions des tours 4 et 5.
 
 Notons que sans l'astuce d'appliquer MC avant ARK on serait à
-$$16 \times 256^4 \times 256^4 \times 256 = 2^{76}$$
 
-$2^{52}$ commence à devenir énorme pour un ordinateur personnel, mais reste faisable en un temps raisonnable avec plusieurs machines en parallèle.
-Cependant avec une implémentation qui sort dès qu'une hypothèse est remarquée fausse, on peut grandement améliorer la complexité réelle, et $2^{52}$ devient alors le pire cas.
+$$4 \times 256^4 \times 256^4 \times 256 = 2^{74}$$
+
+$2^{50}$ est énorme pour un ordinateur personnel, et est infaisable en temps raisonnable sur un processeur (cela prend des dizaines de jours malgré les optimisations).
+
+Cependant il est possible de paralléliser le calcul et de l'envoyer sur carte graphique. Cela peut faire gagner un temps énorme (diviser par au moins 200 le temps).
 
 ## Résultats
 
@@ -150,4 +164,5 @@ Cependant avec une implémentation qui sort dès qu'une hypothèse est remarqué
 
 ## Remerciements
 
-Je dois la compréhension de cette attaque et les images explicatives de ce README à Kévin Duverger. Merci Kévin !
+Je dois la compréhension de l'attaque sur 4 tours et les images explicatives de ce README à Kévin Duverger. Merci Kévin !
+Le travail de nvietsang (voir son github sur cette même attaque) m'a aussi beaucoup aidé pour implémenter l'attaque sur 5 tours.
