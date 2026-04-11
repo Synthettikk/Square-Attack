@@ -3,7 +3,15 @@
 
 #include <stdint.h>
 
-extern uint8_t mult_table[256][256];
+// Précalcule mult_table une fois au démarrage, déclarée 1 seule fois dans le fichier source 
+// compile avec gcc pour le code C
+extern uint8_t mult_table[256][256]; // tout le temps def (cpu)
+
+#ifdef __CUDA_ARCH__
+    // compile avec nvcc pour le code CUDA
+    extern __device__ uint8_t d_mult_table[256][256]; // def qu'avec cuda
+#endif
+
 
 // Addition in GF(2^8) = XOR
 uint8_t add(uint8_t a, uint8_t b);

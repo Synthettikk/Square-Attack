@@ -1,11 +1,13 @@
 // attaque sur aes 5 tours
 
-#include "../includes/aes.h"
-#include "../includes/load_sets.h"
-#include "../includes/helpers.h"
-#include "../includes/GF8_Arithmetics.h"
+#include "aes.h"
+#include "load_sets.h"
+#include "helpers.h"
+#include "GF8_Arithmetics.h"
 #include <time.h>
 #include <stdbool.h>
+#include <unistd.h>
+#include <stdio.h>
 
 typedef struct { uint8_t c; uint8_t r; } Pos;
 
@@ -124,7 +126,7 @@ bool attack5r_2bytes(State key5, int col, const LambdaSetCollection *collection,
         for(int guess5_byte2 = 0; guess5_byte2 < 256; guess5_byte2 += 1) {
             key5[positions[col][1].c][positions[col][1].r] = guess5_byte2;
 
-            //print_progress(col, guess5_byte1, guess5_byte2); // super lent
+            print_progress(col, guess5_byte1, guess5_byte2); // super lent
             
             for(int guess4 = 0; guess4 < 256; guess4 += 1) {
 
@@ -236,7 +238,24 @@ bool attack5r_4bytes(State key5, int col, const LambdaSetCollection *collection,
 
 
 
-int main(void){
+int main(int argc, char *argv[]){
+
+    char *set;
+
+    // Vérif qu'un argument (chemin) a été passé    
+    if (argc < 2) {        
+        fprintf(stderr, "Usage: %s <chemin_des_sets>\n", argv[0]);
+        printf("Chemin par défaut : sets/5r_sets\n");  
+        set = "sets/5r_sets";
+    } else{
+        set = argv[1];
+    }
+
+    // Vérif que le chemin existe et est lisible    
+    if (access(set, F_OK) == -1) {        
+        fprintf(stderr, "Erreur: le fichier '%s' n'existe pas\n", set);        
+        return 1;    
+    }
 
     init_mult_table();
 
@@ -290,18 +309,22 @@ int main(void){
     // attaque et mesure le temps 
     printf("Lancement de l'attaque...\n");
 
+    // note pour l'utilisateur : on fait l'attaque que sur 2 octets pour chaque colonne et on donne les autres, sinon cest trop long sur cpu
+    printf("Attention : c'est une preuve de concept : on n'attaque que sur deux octets par colonne (trop long sur CPU de faire la vraie attaque, voir le code CUDA)\n");
+
     clock_t start, end;
     start = clock();
 
     // pour chaque colonne du state ; la ligne est tj 0 : le MC implique ensuite toute la col
     for(int col = 0; col < 4; col++){ // parallélisable sur 4 machines (les 4 attaques sont indépendantes)
-        // recupere la clé de tour 4 et la met dans key5_state
-        attack5r_3bytes(key5_state, col, &collection, positions);
+        // recupere la clé de tour 5 et la met dans key5_state
+        attack5r_2bytes(key5_state, col, &collection, positions);
     }
 
     end = clock();
 
-    printf("Clé du tour 5 trouvée : ");
+    print_progress(4, 0, 0); // pour que la barre de progression se mette à 100%
+    printf("\nClé du tour 5 trouvée : ");
     print_state(key5_state);
     printf("Durée de l'attaque : %.4f secondes \n", (double)(end-start)/CLOCKS_PER_SEC);
 

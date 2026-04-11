@@ -2,7 +2,7 @@
 
 // In the AES standard, F_2^8 = F_2[X]/(X^8 + X^4 + X^3 + X + 1)
 
-#include "../includes/GF8_Arithmetics.h"
+#include "GF8_Arithmetics.h"
 
 static const uint16_t aesPoly = 0x11B; // 0x11B = 100011011
 static const uint8_t mod = 0x1B; // 0x1B = 00011011 = X^4 + X^3 + X + 1
@@ -15,7 +15,9 @@ uint8_t add(uint8_t a, uint8_t b){
 
 
 // Précalculé une fois au démarrage
+// Définition pour CPU
 uint8_t mult_table[256][256];
+
 
 /*
 uint8_t xTime(uint8_t a){
@@ -39,7 +41,7 @@ uint8_t mult_slow(uint8_t a, uint8_t b){
 void init_mult_table() {
     for(int a = 0; a < 256; a++) {
         for(int b = 0; b < 256; b++) {
-            mult_table[a][b] = mult_slow(a, b);  // ta version lente
+            mult_table[a][b] = mult_slow(a, b);  // la version lente demult
         }
     }
 }

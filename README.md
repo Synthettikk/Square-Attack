@@ -1,10 +1,19 @@
 # Attaque "Square" sur AES 4 et 5 tours
 
+## Contexte et objectifs
+
+Les fichiers 'sets/4_rounds_ciphertexts' et 'sets/5_rounds_ciphertexts' contiennent des paires de textes clairs/chiffrés (des lambda-sets) résultants respectivement d'un chiffrement AES-128 à 4 et 5 tours.
+
+L'objectif est de retrouver les deux clés (128 bits) utilisées.
+
 ## Usage
 
 ### Requirements
 
+- Linux (Windows pose trop de problèmes)
 - gcc installé sur la machine et accessible depuis le bash pour compiler
+- CUDA installé et nvcc accessible depuis le bash
+- Une carte graphique NVIDIA pour lancer le code CUDA
 
 ### Compile
 
@@ -24,10 +33,16 @@ make clean
 build/main_4r
 ```
 
-### Run l'attaque 5 tours
+### Run l'attaque 5 tours sur CPU
 
 ```bash
 build/main_5r
+```
+
+### Run l'attaque 5 tours sur GPU (CUDA)
+
+```bash
+build/main_cuda
 ```
 
 ### Run les tests
@@ -108,7 +123,11 @@ Cette cellule correspond à la position de notre hypothèse d'octet dans la clé
 
 Il suffit donc d'appliquer $ARK^{-1}$ à la cellule cible puis $SB^{-1}$ pour retrouver la valeur prise par la cellule décalée par ShiftRows en entrée du tour 4. Si le résultat ne donne pas une cellule équilibrée, alors l'hypothèse sur la clé était fausse. Sinon, on sauvegarde l'octet de clé à la position de notre cellule cible.
 
-En faisant cela on trouve en moyenne deux candidats par octet de clé : la bonne valeur et un faux. Pour savoir lequel est le bon on peut soit refaire l'attaque avec un autre $\Lambda$-set en entrée puis faire l'intersection des ensembles candidats (c'est ce que fait notre code), soit tester toutes les clés possibles avec ces candidats et voir laquelle est la bonne.
+En faisant cela on trouve en moyenne deux candidats par octet de clé : la bonne valeur et un faux. En effet, XORer les 256 valeurs pour un octet de clé qui n'est pas le bon revient à du bruit/random donc le résultat est un nombre aléatoire entre 0 et 255, d'où le fait que l'on a une chance sur 256 que cela fasse 0 et que donc la cellule soit équilibrée. On a donc une chance sur 256 par hypothèse d'octet d'avoir un faux, mais comme on fait 256 hypothèses par octet, on a en moyenne un faux positif par octet en plus de la bonne valeur.
+
+Pour savoir lequel est le bon on peut soit refaire l'attaque avec un autre $\Lambda$-set en entrée puis faire l'intersection des ensembles candidats (c'est ce que fait notre code), soit tester toutes les clés possibles avec ces candidats et voir laquelle est la bonne.
+
+Avec plusieurs $\Lambda$-sets, la probabilité de trouver un faux pour un guess est $1/256^{\text{nb de sets}}$.
 
 Notons que l'on obtient alors la clé du tour 4. Il faut encore utiliser invKeySchedule pour remonter à la clé maître.
 
@@ -154,15 +173,29 @@ $$4 \times 256^4 \times 256^4 \times 256 = 2^{74}$$
 
 $2^{50}$ est énorme pour un ordinateur personnel, et est infaisable en temps raisonnable sur un processeur (cela prend des dizaines de jours malgré les optimisations).
 
-Cependant il est possible de paralléliser le calcul et de l'envoyer sur carte graphique. Cela peut faire gagner un temps énorme (diviser par au moins 200 le temps).
+Cependant il est possible de paralléliser le calcul et de l'envoyer sur carte graphique. Cela peut faire gagner un temps énorme.
 
 ## Résultats
 
 ### De l'attaque sur AES 4 tours
 
-![Résultats de l'attaque sur AES 4 tours](./img/resultats_4r.png)
+![Résultats de l'attaque sur AES 4 tours](./img/resultats_4r_opti.png)
+
+Calculé sur CPU i7 9700K.
+
+### De l'attaque sur AES 5 tours
+
+![Résultats de l'attaque sur AES 5 tours (cuda)](./img/resultats_5r_cuda.png)
+
+Notons que pour obtenir ces résultats, les calculs ont été faits sur RTX 2060, ce qui a permis de diviser le temps par au moins 20 (voire 40) par rapport au CPU (i7 9700K).
+
+Cette attaque est massivement parallélisable et la RTX 2060 n'est pas suffisamment puissante (et n'a pas assez de threads) pour réellement paralléliser sur plus que deux octets par colonne. Cependant, avec une meilleure carte graphique (voire plusieurs en même temps), on peut encore énormément diviser le temps de calcul.
+
+### Petite remarque
+
+L'attaque a été faite de manière réaliste : les clés utilisées pour obtenir les $\Lambda$-sets des fichiers '4_rounds_ciphertexts' et '5_rounds_ciphertexts' nous étaient inconnues au départ. L'objectif du projet était de retrouver les clés. Les autres sets ont été générés par notre code avec une clé connue pour des tests. D'ailleurs, le code n'utilise jamais les clés secrètes pour parvenir à faire l'attaque (pas de triche).
 
 ## Remerciements
 
-Je dois la compréhension de l'attaque sur 4 tours et les images explicatives de ce README à Kévin Duverger. Merci Kévin !
-Le travail de nvietsang (voir son github sur cette même attaque) m'a aussi beaucoup aidé pour implémenter l'attaque sur 5 tours.
+Je dois le début de ma compréhension de l'attaque sur 4 tours et les images explicatives de ce README à Kévin Duverger. Merci Kévin !
+Le travail de nvietsang (voir son github sur cette même attaque) m'a aussi beaucoup aidé pour implémenter l'attaque sur 5 tours sur CPU.

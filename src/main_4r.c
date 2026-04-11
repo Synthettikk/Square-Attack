@@ -1,10 +1,12 @@
 // attaque sur aes 4 tours
 
-#include "../includes/GF8_Arithmetics.h"
-#include "../includes/aes.h"
-#include "../includes/load_sets.h"
-#include "../includes/helpers.h"
+#include "GF8_Arithmetics.h"
+#include "aes.h"
+#include "load_sets.h"
+#include "helpers.h"
 #include <time.h>
+#include <unistd.h>
+#include <stdio.h>
 
 
 void print_votes(int votes[4][4][256], int x, int y){
@@ -86,11 +88,28 @@ void attack4r(State key, const LambdaSetCollection *collection){
 
 
 
-int main(void){
+int main(int argc, char *argv[]){
+
+    char *set;
+
+    // Vérif qu'un argument (chemin) a été passé    
+    if (argc < 2) {        
+        fprintf(stderr, "Usage: %s <chemin_des_sets>\n", argv[0]);
+        printf("Chemin par défaut : sets/4_rounds_ciphertexts\n");  
+        set = "sets/4_rounds_ciphertexts";
+    } else{
+        set = argv[1];
+    }
+
+    // Vérif que le chemin existe et est lisible    
+    if (access(set, F_OK) == -1) {        
+        fprintf(stderr, "Erreur: le fichier '%s' n'existe pas\n", set);        
+        return 1;
+    }
 
     init_mult_table();
 
-    LambdaSetCollection collection = load_sets("sets/4r_sets");
+    LambdaSetCollection collection = load_sets(set);
     State key4_state; // sous forme de state
     key key4;
     key master_key;
